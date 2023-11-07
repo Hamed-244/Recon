@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,11 +8,14 @@
 {% endblock meta %}
 
 {% block bootstrap %}
-  
+  <link rel="stylesheet" type="text/css" href="{% static 'Bootstrap/bootstrap.min.css' %}">
+  <script src="{% static 'Bootstrap/jquery-3.7.0.slim.min.js' %}"></script>
+  <script src="{% static 'Bootstrap/bootstrap.bundle.min.js' %}"></script>
 {% endblock bootstrap %}
 
 {% block base_links %}
-  
+  <link rel="stylesheet" href="{% static 'home/css/style.css' %}">
+  <script src="{% static 'home/js/scripts.js' %}" defer></script>
 {% endblock base_links %}
 
 {% block links %}
@@ -22,7 +26,10 @@
   
 {% endblock extra_head %}
 
+{% block icon %}<link rel="icon" type="image/x-icon" href="/media/favicon.ico">{% endblock icon %}
+
     <title>{% block title %}Url Scanner{% endblock title %}</title>
+
 </head>
 <body>
 {% block body %}
