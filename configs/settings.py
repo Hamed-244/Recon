@@ -45,7 +45,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # 3d party
+    'rest_framework',
+
+    # local
     'my_site',
+    'scraper',
 ]
 
 MIDDLEWARE = [
@@ -56,6 +62,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.cache.UpdateCacheMiddleware',     # NEW
+    'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
 ROOT_URLCONF = 'configs.urls'
@@ -89,6 +97,9 @@ DATABASES = {
     }
 }
 
+CACHE_MIDDLEWARE_ALIAS = 'default'  # which cache alias to use
+CACHE_MIDDLEWARE_SECONDS = 600    # number of seconds to cache a page for (TTL)
+CACHE_MIDDLEWARE_KEY_PREFIX = ''
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -136,3 +147,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR , 'media')
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# local
+
+# rest framework
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ]
+}
