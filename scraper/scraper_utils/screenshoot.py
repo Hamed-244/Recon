@@ -24,7 +24,7 @@ def capture_screenshot(url , domain ):
 
         # Clean up
         driver.quit()
-        dfs()
+        
         # Return the URL of the screenshot
         return screenshot_path
     except Exception as error:
