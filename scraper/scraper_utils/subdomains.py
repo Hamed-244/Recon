@@ -18,9 +18,9 @@ def get_title (html_content) :
 # get phone number
 def get_phonNumber (html_content):
     try :
-        phonNumber_regex = r"(?:\+\d{2})?\d{3,4}\D?\d{3}\D?\d{3}"
-        phonNumbers = re.findall(phonNumber_regex , html_content)
-        return phonNumbers
+        phon_number_regex = r"(?:\+\d{2})?\d{3,4}\D?\d{3}\D?\d{3}"
+        phon_numbers = re.findall(phon_number_regex , html_content)
+        return phon_numbers
     except Exception as error:
         print('extract phone number error' , error)
         return []
@@ -44,12 +44,12 @@ def subdomain_information (domain) :
         status_code = request.status_code or 'Unknown'
         html_content = request.content.decode()
         emails = get_email(html_content)
-        phonNumbers = get_phonNumber(html_content)
+        phon_numbers = get_phonNumber(html_content)
         title = get_title(html_content).strip()
-        return {"status" : status_code , "title" : title , "emails" : emails , "phon numbers" : phonNumbers }
+        return {"Status" : status_code , "Title" : title , "Emails" : emails , "Phone numbers" : phon_numbers }
     except Exception as error:
         print('get subdomain information error' ,error)
-        return {"status" : "Unknown" , "title" : "Unknown" , "emails" : [] , "phon numbers" : []}
+        return {"Status" : "Unknown" , "Title" : "Unknown" , "Emails" : [] , "Phone numbers" : []}
 
 def check_subdomain_exists(subdomain , domain, existed_subdomains) :
     sub_name = None
@@ -89,15 +89,18 @@ def get_subdomain (domain) :
 def subdomain_check(domain):
     try:
 
-        subdomain_info = []
+        subdomains_info = []
         subdomains = get_subdomain(domain)
 
         for subname in subdomains :
-            ipAddres = socket.gethostbyname(subname)
+            ip_addres = socket.gethostbyname(subname)
             more_info = subdomain_information (subname)
-            subdomain_info.append({"subName" : subname , "ip" : ipAddres , "status" : more_info["status"] , "title" : more_info["title"] , "emails" : more_info["emails"] ,"phonNumbers" : more_info["phon numbers"] })
+            _sub_informations = {"Subdomain name" : subname , "Ip" : ip_addres}
+            _sub_informations.update(more_info.items())
+
+            subdomains_info.append(_sub_informations)
         
-        return subdomain_info
+        return subdomains_info
     except Exception as error :
         print('error in subdomain check' , error)
         return None

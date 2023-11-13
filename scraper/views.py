@@ -7,7 +7,7 @@ from scraper.serializers import ReconSiteSerializer
 from .utils import get_domain
 import threading
 
-from .scraper_utils import subdomains, extract_files, extract_links, extract_used_techno, open_ports, screenshoot, server_info 
+from .scraper_utils import subdomains, extract_files, extract_links, extract_Technologies, open_ports, screenshoot, server_info 
 
 from queue import Queue
 
@@ -26,13 +26,13 @@ def get_data(url, domain, data):
 
     # Define the thread targets and arguments
     thread_targets = [
-        (extract_files.extract_files, 'files', [url]),
-        (extract_links.crawl_site, 'links', [url, 2]),
-        (subdomains.subdomain_check, 'subdomain', [domain]),
-        (open_ports.port_scanner, 'ports', [domain]),
-        (server_info.get_url_info, 'info', [domain]),
-        (screenshoot.capture_screenshot, 'screenshot', [url, domain]),
-        (extract_used_techno.Wappalyzer, 'techno', [url])
+        (extract_files.extract_files, 'Files', [url]),
+        (extract_links.crawl_site, 'Links', [url, 2]),
+        (subdomains.subdomain_check, 'Subdomains', [domain]),
+        (open_ports.port_scanner, 'Ports', [domain]),
+        (server_info.get_url_info, 'Informations', [domain]),
+        (screenshoot.capture_screenshot, 'Screenshot', [url, domain]),
+        (extract_Technologies.wappalyzer, 'Technologies', [url])
     ]
 
     threads = []
@@ -67,7 +67,7 @@ class ReconSiteView (APIView):
                 response_data = {'url' : url , 'domain' : domain}
                 # add data to response
                 get_data(url=url , domain=domain ,data = response_data)
-                cache.set(url, response_data, 3600)
+                cache.set(url, response_data, 1800)
 
             return Response(response_data, status=200)
         return Response(serializer.errors , status=403)

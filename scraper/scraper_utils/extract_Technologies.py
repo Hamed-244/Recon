@@ -1,5 +1,5 @@
 from Wappalyzer import Wappalyzer, WebPage
-
+import warnings
 def wappalyzer (url) :
     try :
         with warnings.catch_warnings():
