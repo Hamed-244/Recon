@@ -7,7 +7,7 @@ from scraper.serializers import ReconSiteSerializer
 from .utils import get_domain
 import threading
 
-from .scraper_utils import subdomains, extract_files, extract_links, extract_used_techno, open_ports, screenshoot, server_info 
+from .scraper_utils import subdomains, extract_files, extract_links, extract_Technologies, open_ports, screenshoot, server_info 
 
 from queue import Queue
 
@@ -32,7 +32,7 @@ def get_data(url, domain, data):
         (open_ports.port_scanner, 'ports', [domain]),
         (server_info.get_url_info, 'info', [domain]),
         (screenshoot.capture_screenshot, 'screenshot', [url, domain]),
-        (extract_used_techno.Wappalyzer, 'techno', [url])
+        (extract_Technologies.wappalyzer, 'Technologies', [url])
     ]
 
     threads = []
