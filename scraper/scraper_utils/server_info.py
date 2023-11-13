@@ -18,14 +18,20 @@ def get_url_info(domain ):
         for line in msg.split("\n"):
             if re.findall(pattern , line):
                 key , value = line.split(':',1)
+                value = value.strip()
+
                 if data.get(key) :
-                    last_value = [data.get(key)] if type(data.get(key)) == str  else data.get(key)
-                    last_value.extend([value.strip()])
+                    # ignore duplicated informations
+                    if value in data.get(key) :
+                        continue
+                    # append new informations to the last information
+                    last_value = data.get(key)
+                    last_value.extend([value])
                     data[key] = last_value
                 else :
-                    data[key] = value.strip()
+                    data[key] = [value]
 
         return data
     except Exception as error:
-        print('error in url info :' ,error)
+        print('error in url information :' ,error)
         return None
