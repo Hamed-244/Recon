@@ -67,7 +67,7 @@ class ReconSiteView (APIView):
                 response_data = {'url' : url , 'domain' : domain}
                 # add data to response
                 get_data(url=url , domain=domain ,data = response_data)
-                cache.set(url, response_data, 3600)
+                cache.set(url, response_data, 1800)
 
             return Response(response_data, status=200)
         return Response(serializer.errors , status=403)
