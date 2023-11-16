@@ -45,13 +45,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+
     # 3d party
     'rest_framework',
+    'django.contrib.sites',
 
     # local
     'my_site',
     'scraper',
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
