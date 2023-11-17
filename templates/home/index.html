@@ -17,14 +17,20 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">home</a>
+                    <a class="nav-link active" aria-current="page" href="#">Home</a>
                 </li>
+                {% if request.user.is_superuser %}
                 <li class="nav-item">
-                    <a class="nav-link" href="#">sign up</a>
+                    <a class="nav-link" href="/admin">Dashboard</a>
                 </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin">ُSign up</a>
+                </li>
+                {% endif %}
             </ul>
             <div class="d-flex align-items-center flex-row-reverse flex-lg-row  gap-2 w-fit">
-                <p class="m-0">anonymus user</p>
+                <p class="m-0">{% if request.user.is_authenticated %}{{request.user}} {% else %}anonymus user{% endif %}</p>
                 <img src="/media/site/user.png" alt="profile" class="user-profile">
             </div>
         </div>
@@ -40,7 +46,8 @@
                 <h2 class="fs-1">Extract information from any site with web scraper</h2>
                 <h3 class="fs-4">Enter your url to start scraping.</h3>
                 <form action="" class="url-form">
-                    <input type="text" placeholder="example.com" class="url-input">
+                    <input type="url" placeholder="example.com" class="url-input">
+                    {% csrf_token %}
                     <button class="url-submit-form">
                         <img src="/media/site/submit-icon.png" alt="start" class="w-75">
                     </button>

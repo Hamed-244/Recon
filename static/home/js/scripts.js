@@ -17,24 +17,23 @@ function pauseLoading() {
 urlForm.addEventListener('submit', async event => {
     event.preventDefault();
     let urlValue = urlInput.value;
+    var csrfToken = $.getElementsByName('csrfmiddlewaretoken')[0].value
+
     scraperInfoContainer.innerHTML = ''
     playLoading();
     
     try {
-        let data = await RequestToReconServer(urlValue);
-        insertTabsToHtml(data);
-    } catch (error) {
-
-        if (error instanceof HttpError) {
-            if (String(error.status).startsWith('5')){
-                insertErrorToHtml(`Internal server error , Please try again later`)
-            }
-            else{
-                insertErrorToHtml(`Please enter a valid url !`)
-            }
-        } else {
-            insertErrorToHtml('Could not connect to server :(')
+        let data = await RequestToReconServer(urlValue , csrfToken);
+        if (data['status']) {
+            insertTabsToHtml(data);
         }
+        else{
+            console.error(data)
+            insertErrorToHtml('Some error occurred ! try again later')
+        }
+    } catch (error) {
+        insertErrorToHtml('Could not connect to server :(')
+        console.error(error)
     } finally {
         pauseLoading();
     }
@@ -48,22 +47,26 @@ class HttpError extends Error {
     }
 }
 
-async function RequestToReconServer(url) {
+async function RequestToReconServer(url , csrfToken) {
     try {
         let response = await fetch(`${location.origin}/api/v1/get-site-data/`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken' : csrfToken
             },
             body: JSON.stringify({'url': url})
         });
+        let data = await response.json()
 
         if (!response.ok) {
-            throw new HttpError(response.status, response.statusText);
+            data['status'] = false
+            return data
         }
 
-        let data = await response.json();
+        data['status'] = true
         return data;
+
     } catch (error) {
         throw error;
     }
@@ -115,21 +118,28 @@ function insertInformation(data) {
     var elementBox = `
     <div class="row justify-content-center flex-wrap-reverse">
         <div class="col-12 col-lg-6 col-xxl-8">
-            ${insertInformationLoop(mainInformations , ports)}
+            ${insertInformationLoop(informations = mainInformations , ports = ports , domain = data['domain'])}
         </div>
         <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xxl-4">
-            <img src="${screenshoot}" alt="${data['url']}" class="w-100 screenshoopt-img">
+            <img src="${screenshoot ? screenshoot : '/media/screenshoots/default.png'}" alt="${data['url']}" class="w-100 screenshoopt-img">
             <p class="text-center text-muted">${data['url']}</p>
         </div>
     </div>
     `
 
-    function insertInformationLoop(informations , ports) {
-        divElement =  ``
+    function insertInformationLoop(informations , ports , domain) {
+        divElement =  `
+        <li class="information-list">
+            <p class="title">domain : </p>
+            <div class="description">
+                <p>${domain}</p>
+            </div>
+        </li>`
+        informations['ports'] = ports
 
-        if (! informations) {
+        if (! informations || informations.length <1 ) {
             divElement += `
-            <p class="h4 text-danger">Main information could not be loaded , try again later</p>`
+            <p class="h4 text-danger">Information could not be loaded , try again later</p>`
         }
         else {
             for (item in informations) {
@@ -141,16 +151,6 @@ function insertInformation(data) {
                     </div>
                 </li>`
             }
-        }
-
-        if (ports) {
-            divElement += `
-            <li class="information-list">
-                <p class="title">Open ports : </p>
-                <div class="description">
-                    <p>${ports.join(' <span class="text-danger"> / </span> ')}</p>
-                </div>
-            </li>`
         }
 
         return divElement
@@ -169,6 +169,13 @@ function insertTechnologies(data) {
         </div>
         `
         return elementBox
+    }
+    else if (technologies.length <1){
+        elementBox = `
+        <div class="row justify-content-center pt-2 flex-wrap-reverse">
+            <p class="text-danger h4">No technology found !</p>
+        </div>
+        `
     }
     else {
         for (techno in technologies) {
@@ -191,7 +198,12 @@ function insertLinks(data) {
     var count = 0
     if (! links) {
         elementBox += `
-        <p class="text-danger h4">can not load links</p>
+        <p class="text-danger h4">Can not load links</p>
+        `
+    }
+    else if (links.length <1){
+        elementBox += `
+        <p class="text-danger h4">No links found !</p>
         `
     }
     else {
@@ -236,7 +248,12 @@ function insertFiles(data) {
     var elementBox = ``
     if (!files) {
         elementBox +=`
-        <p class="text-danger h4">can not load files</p>
+        <p class="text-danger h4">Can not load files</p>
+        `
+    }
+    else if (files.length <1){
+        elementBox += `
+        <p class="text-danger h4">No Files found !</p>
         `
     }
     else {
@@ -286,7 +303,7 @@ function insertSubdomains(data) {
     }
     else if (subdomains.length <=0){
         elementBox += `
-        <p class="text-danger h4">no subdomains found</p>
+        <p class="text-danger h4">No subdomain found !</p>
         `
     }
     else {
