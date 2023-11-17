@@ -17,24 +17,23 @@ function pauseLoading() {
 urlForm.addEventListener('submit', async event => {
     event.preventDefault();
     let urlValue = urlInput.value;
+    var csrfToken = $.getElementsByName('csrfmiddlewaretoken')[0].value
+
     scraperInfoContainer.innerHTML = ''
     playLoading();
     
     try {
-        let data = await RequestToReconServer(urlValue);
-        insertTabsToHtml(data);
-    } catch (error) {
-
-        if (error instanceof HttpError) {
-            if (String(error.status).startsWith('5')){
-                insertErrorToHtml(`Internal server error , Please try again later`)
-            }
-            else{
-                insertErrorToHtml(`Please enter a valid url !`)
-            }
-        } else {
-            insertErrorToHtml('Could not connect to server :(')
+        let data = await RequestToReconServer(urlValue , csrfToken);
+        if (data['status']) {
+            insertTabsToHtml(data);
         }
+        else{
+            console.error(data)
+            insertErrorToHtml('Some error occurred ! try again later')
+        }
+    } catch (error) {
+        insertErrorToHtml('Could not connect to server :(')
+        console.error(error)
     } finally {
         pauseLoading();
     }
@@ -48,22 +47,26 @@ class HttpError extends Error {
     }
 }
 
-async function RequestToReconServer(url) {
+async function RequestToReconServer(url , csrfToken) {
     try {
         let response = await fetch(`${location.origin}/api/v1/get-site-data/`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken' : csrfToken
             },
             body: JSON.stringify({'url': url})
         });
+        let data = await response.json()
 
         if (!response.ok) {
-            throw new HttpError(response.status, response.statusText);
+            data['status'] = false
+            return data
         }
 
-        let data = await response.json();
+        data['status'] = true
         return data;
+
     } catch (error) {
         throw error;
     }
