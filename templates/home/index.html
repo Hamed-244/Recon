@@ -19,9 +19,15 @@
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="#">Home</a>
                 </li>
+                {% if request.user.is_superuser %}
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Sign up</a>
+                    <a class="nav-link" href="/admin">Dashboard</a>
                 </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin">ُSign up</a>
+                </li>
+                {% endif %}
             </ul>
             <div class="d-flex align-items-center flex-row-reverse flex-lg-row  gap-2 w-fit">
                 <p class="m-0">{% if request.user.is_authenticated %}{{request.user}} {% else %}anonymus user{% endif %}</p>
