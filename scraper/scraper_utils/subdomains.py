@@ -1,10 +1,11 @@
-import requests
-import dns.resolver
-import socket
+import os
 import re
+import socket
+import requests
 import threading
+import dns.resolver
 from bs4 import BeautifulSoup
-
+from django.conf import settings 
 # get_title
 def get_title (html_content) :
     try :
@@ -62,28 +63,31 @@ def check_subdomain_exists(subdomain , domain, existed_subdomains) :
     except Exception as error :
         pass
 
-def get_subdomain (domain) :
+def get_subdomain(domain):
     existed_subdomains = []
-    with open ("static/scraper/domainList.txt" , 'r') as wordlist :
+    base_dir = settings.BASE_DIR
+    file_path = os.path.join(base_dir, 'static', 'scraper', 'domainList.txt')
+
+    with open(file_path, 'r') as wordlist:
         wordlist = wordlist.readlines()
         count = 0
-        while count < len(wordlist)-1 :
+        while count < len(wordlist)-1:
             threads_list = []
-            max_index = count+50 if count +50 < len(wordlist) else len(wordlist)
+            max_index = count + 50 if count + 50 < len(wordlist) else len(wordlist)
 
-            for line_index in range(count , max_index):
+            for line_index in range(count, max_index):
                 line = wordlist[line_index]
                 subdomain = line.strip()
-                threads_list.append(threading.Thread(target=check_subdomain_exists , args=[subdomain , domain , existed_subdomains]))
+                threads_list.append(threading.Thread(target=check_subdomain_exists, args=[subdomain, domain, existed_subdomains]))
                 count += 1
 
-            for item in threads_list :
+            for item in threads_list:
                 item.start()
 
-            for item in threads_list :
+            for item in threads_list:
                 item.join()
 
-        return existed_subdomains
+    return existed_subdomains
 
 # main subdomain check
 def subdomain_check(domain):
